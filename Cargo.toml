@@ -1,0 +1,14 @@
+[package]
+name = "zed-mcp-grafana"
+version = "0.1.0"
+edition = "2024"
+publish = false
+license = "Apache-2.0"
+authors = ["Ben Sully <ben.sully88@gmail.com>"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+serde = "1.0"
+zed_extension_api = "0.4.0"

@@ -1,0 +1,10 @@
+id = "mcp-grafana"
+name = "Grafana MCP Server"
+description = "Model Context Protocol Server for Grafana"
+version = "0.0.1"
+schema_version = 1
+authors = ["ben.sully88@gmail.com"]
+repository = "https://github.com/sd2k/zed-mcp-server-grafana"
+
+[context_servers.mcp-grafana]
+name = "Grafana MCP Server"
