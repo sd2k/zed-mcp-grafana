@@ -1,5 +1,6 @@
+use std::{env, fs};
+
 use serde::Deserialize;
-use std::fs;
 use zed::settings::ContextServerSettings;
 use zed_extension_api::{self as zed, Command, ContextServerId, Project, Result, serde_json};
 
@@ -8,7 +9,17 @@ const BINARY_NAME: &str = "mcp-grafana";
 
 #[derive(Debug, Deserialize)]
 struct GrafanaContextServerSettings {
-    grafana_url: String,
+    /// The URL of the Grafana instance.
+    ///
+    /// Note this is marked as optional because it may come from the
+    /// `GRAFANA_URL` environment variable instead.
+    grafana_url: Option<String>,
+
+    /// The API key of the Grafana instance.
+    ///
+    /// This is optional if the Grafana instance is accessible without
+    /// authentication. It can also be set using the `GRAFANA_API_KEY`
+    /// environment variable.
     grafana_api_key: Option<String>,
 }
 
@@ -22,7 +33,7 @@ impl GrafanaModelContextExtension {
         _context_server_id: &ContextServerId,
     ) -> Result<String> {
         if let Some(path) = &self.cached_binary_path {
-            if fs::metadata(path).map_or(false, |stat| stat.is_file()) {
+            if fs::metadata(path).is_ok_and(|stat| stat.is_file()) {
                 return Ok(path.clone());
             }
         }
@@ -65,7 +76,7 @@ impl GrafanaModelContextExtension {
             .map_err(|err| format!("failed to create directory '{version_dir}': {err}"))?;
         let binary_path = format!("{version_dir}/{BINARY_NAME}");
 
-        if !fs::metadata(&binary_path).map_or(false, |stat| stat.is_file()) {
+        if !fs::metadata(&binary_path).is_ok_and(|stat| stat.is_file()) {
             let file_kind = match platform {
                 zed::Os::Mac | zed::Os::Linux => zed::DownloadedFileType::GzipTar,
                 zed::Os::Windows => zed::DownloadedFileType::Zip,
@@ -111,8 +122,18 @@ impl zed::Extension for GrafanaModelContextExtension {
         let settings: GrafanaContextServerSettings =
             serde_json::from_value(settings).map_err(|e| e.to_string())?;
 
-        let mut env = vec![("GRAFANA_URL".into(), settings.grafana_url)];
-        if let Some(api_key) = settings.grafana_api_key {
+        let Some(grafana_url) = env::var("GRAFANA_URL").ok().or(settings.grafana_url) else {
+            return Err(
+                "missing Grafana URL; configure in `grafana_url` setting or GRAFANA_URL env var"
+                    .into(),
+            );
+        };
+        let api_key = env::var("GRAFANA_API_KEY")
+            .ok()
+            .or(settings.grafana_api_key);
+
+        let mut env = vec![("GRAFANA_URL".into(), grafana_url)];
+        if let Some(api_key) = api_key {
             env.push(("GRAFANA_API_KEY".into(), api_key));
         }
 
