@@ -15,7 +15,7 @@ This extension integrates the [Grafana MCP Server][g-mpc] as a Zed context serve
 ```json
 {
   "context_servers": {
-    "mcp-grafana": {
+    "mcp-server-grafana": {
       "settings": {
         "grafana_url": "<your grafana url>",
         "grafana_api_key": "<your service account token>"

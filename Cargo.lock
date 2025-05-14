@@ -774,7 +774,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "zed-mcp-grafana"
+name = "zed-mcp-server-grafana"
 version = "0.1.0"
 dependencies = [
  "serde",

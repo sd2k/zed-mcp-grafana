@@ -139,7 +139,7 @@ impl zed::Extension for GrafanaModelContextExtension {
         context_server_id: &ContextServerId,
         project: &Project,
     ) -> Result<Command> {
-        let settings = ContextServerSettings::for_project("mcp-grafana", project)?;
+        let settings = ContextServerSettings::for_project("mcp-server-grafana", project)?;
         let Some(settings) = settings.settings else {
             return Err("missing Grafana settings".into());
         };
