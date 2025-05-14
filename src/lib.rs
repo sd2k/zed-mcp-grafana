@@ -13,6 +13,7 @@ struct GrafanaContextServerSettings {
     ///
     /// Note this is marked as optional because it may come from the
     /// `GRAFANA_URL` environment variable instead.
+    #[serde(default)]
     grafana_url: Option<String>,
 
     /// The API key of the Grafana instance.
@@ -20,6 +21,7 @@ struct GrafanaContextServerSettings {
     /// This is optional if the Grafana instance is accessible without
     /// authentication. It can also be set using the `GRAFANA_API_KEY`
     /// environment variable.
+    #[serde(default)]
     grafana_api_key: Option<String>,
 }
 
