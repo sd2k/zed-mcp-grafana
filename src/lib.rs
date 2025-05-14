@@ -1,8 +1,10 @@
 use std::{env, fs};
 
 use serde::Deserialize;
-use zed::settings::ContextServerSettings;
-use zed_extension_api::{self as zed, Command, ContextServerId, Project, Result, serde_json};
+use zed_extension_api::{
+    self as zed, Command, ContextServerId, Project, Result, serde_json,
+    settings::ContextServerSettings,
+};
 
 const REPO_NAME: &str = "grafana/mcp-grafana";
 const BINARY_NAME: &str = "mcp-grafana";
@@ -23,6 +25,26 @@ struct GrafanaContextServerSettings {
     /// environment variable.
     #[serde(default)]
     grafana_api_key: Option<String>,
+
+    /// Enabled categories of tools.
+    ///
+    /// See the [README of the Grafana MCP server][readme] to see the list
+    /// of available categories.
+    ///
+    /// Defaults to `None`, which means all tools are enabled.
+    ///
+    /// [readme]: https://github.com/grafana/mcp-grafana
+    #[serde(default)]
+    enabled_tools: Option<Vec<String>>,
+
+    /// Enable the Grafana MCP server's debug flag.
+    ///
+    /// This will cause requests to and responses from the Grafana
+    /// instance to be logged by the MCP server.
+    ///
+    /// Defaults to false.
+    #[serde(default)]
+    debug: bool,
 }
 
 struct GrafanaModelContextExtension {
@@ -139,9 +161,18 @@ impl zed::Extension for GrafanaModelContextExtension {
             env.push(("GRAFANA_API_KEY".into(), api_key));
         }
 
+        let mut args = vec![];
+        if let Some(enabled_tools) = settings.enabled_tools {
+            args.push("--enabled-tools".into());
+            args.push(enabled_tools.join(","));
+        }
+        if settings.debug {
+            args.push("--debug".into());
+        }
+
         Ok(Command {
             command: self.context_server_binary_path(context_server_id)?,
-            args: vec![],
+            args,
             env,
         })
     }
