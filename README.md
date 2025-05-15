@@ -1,6 +1,6 @@
 # Grafana MCP Server Extension for Zed
 
-This extension integrates the [Grafana MCP Server][g-mpc] as a Zed context server extension.
+This extension integrates the [Grafana MCP Server][g-mcp] as a Zed context server extension.
 
 ## Installation
 
